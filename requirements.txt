@@ -4,3 +4,4 @@ python-dotenv
 httpx
 jinja2
 python-multipart
+openpyxl

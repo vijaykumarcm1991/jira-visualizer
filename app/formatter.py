@@ -9,15 +9,32 @@ def format_datetime(value: str):
 
 
 def parse_adf(content):
-    """Extract text from Atlassian Document Format"""
     texts = []
 
     def extract(node):
         if isinstance(node, dict):
-            if node.get("type") == "inlineCard":
+
+            node_type = node.get("type")
+
+            # TEXT
+            if node_type == "text":
+                texts.append(node.get("text", ""))
+
+            # INLINE LINK / CARD
+            elif node_type == "inlineCard":
                 url = node.get("attrs", {}).get("url", "")
                 texts.append(url)
 
+            # MENTION (user tags)
+            elif node_type == "mention":
+                name = node.get("attrs", {}).get("text", "")
+                texts.append(name)
+
+            # HARD BREAK
+            elif node_type == "hardBreak":
+                texts.append("\n")
+
+            # RECURSE
             for child in node.get("content", []):
                 extract(child)
 
@@ -26,8 +43,12 @@ def parse_adf(content):
                 extract(item)
 
     extract(content)
-    return " ".join(texts)
 
+    # 🔥 CLEAN EMPTY / NOISE
+    final_text = " ".join(texts)
+    final_text = final_text.replace(" \n ", "\n").strip()
+
+    return final_text if final_text else ""
 
 def format_comments(value):
     comments = value.get("comments", [])
@@ -43,6 +64,10 @@ def format_comments(value):
             body = parse_adf(raw_body)
         else:
             body = raw_body
+
+        # 🔥 Skip empty comments
+        if not body or not str(body).strip():
+            continue
 
         formatted.append(f"{author} ({created}): {body}")
 
@@ -61,6 +86,10 @@ def format_value(value):
     # Simple types
     if isinstance(value, (str, int, float)):
         return value
+
+    # 🔥 WORKLOG HANDLING
+    if isinstance(value, dict) and "worklogs" in value:
+        return format_worklog(value)
 
     # 🔥 COMMENTS HANDLING
     if isinstance(value, dict) and "comments" in value:
@@ -94,3 +123,28 @@ def format_value(value):
         return ", ".join(formatted)
 
     return str(value)
+
+def format_worklog(value):
+    worklogs = value.get("worklogs", [])
+    formatted = []
+
+    for w in worklogs:
+        author = w.get("author", {}).get("displayName", "Unknown")
+        time_spent = w.get("timeSpent", "")
+        started = format_datetime(w.get("started", ""))
+
+        comment_raw = w.get("comment", "")
+
+        if isinstance(comment_raw, dict) and comment_raw.get("type") == "doc":
+            comment = parse_adf(comment_raw)
+        else:
+            comment = comment_raw
+
+        entry = f"{author} ({started})\nTime Spent: {time_spent}"
+
+        if comment:
+            entry += f"\nComment: {comment}"
+
+        formatted.append(entry)
+
+    return "\n\n".join(formatted)

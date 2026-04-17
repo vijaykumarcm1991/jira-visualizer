@@ -5,6 +5,9 @@ from app.cache import get_cached_fields, set_cached_fields
 from app.jira_client import fetch_issues, fetch_fields
 from app.field_mapper import build_field_map
 from app.transformer import transform_issues
+from fastapi.responses import StreamingResponse
+from io import BytesIO
+from openpyxl import Workbook
 
 app = FastAPI()
 
@@ -52,4 +55,44 @@ async def search(
             "request": request,
             "issues": clean_data
         }
+    )
+
+@app.post("/export")
+async def export(
+    query: str = Form(...),
+    instance: str = Form(...)
+):
+    raw_issues = await fetch_issues(query, instance)
+    fields_meta = await fetch_fields(instance)
+
+    field_map = build_field_map(fields_meta)
+    clean_data = transform_issues(raw_issues, field_map)
+
+    # Create Excel
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Jira Data"
+
+    # Headers
+    headers = ["Key"]
+    if clean_data:
+        headers += list(clean_data[0]["fields"].keys())
+
+    ws.append(headers)
+
+    # Rows
+    for issue in clean_data:
+        row = [issue["key"]]
+        row += list(issue["fields"].values())
+        ws.append(row)
+
+    # Save to memory
+    buffer = BytesIO()
+    wb.save(buffer)
+    buffer.seek(0)
+
+    return StreamingResponse(
+        buffer,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": "attachment; filename=jira_data.xlsx"}
     )

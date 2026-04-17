@@ -1,6 +1,8 @@
 <div class="bg-white shadow rounded overflow-hidden">
 
   <table class="min-w-full text-sm">
+
+    <!-- HEADER -->
     <thead class="bg-gray-200">
       <tr>
         <th class="p-2 text-left">Key</th>
@@ -10,29 +12,27 @@
       </tr>
     </thead>
 
+    <!-- BODY -->
     <tbody>
       {% for issue in issues %}
-      
+
       <!-- MAIN ROW -->
       <tr class="border-b cursor-pointer hover:bg-gray-100"
           onclick="toggleRow('{{ issue.key }}')">
+
         <td class="p-2 font-semibold text-blue-600">
           {{ issue.key }}
         </td>
-        <td class="p-2">
-          {{ issue.fields.get('Summary', '-') }}
-        </td>
-        <td class="p-2">
-          {{ issue.fields.get('Status', '-') }}
-        </td>
-        <td class="p-2">
-          {{ issue.fields.get('Priority', '-') }}
-        </td>
+
+        <td class="p-2">{{ issue.fields.get('Summary', '-') }}</td>
+        <td class="p-2">{{ issue.fields.get('Status', '-') }}</td>
+        <td class="p-2">{{ issue.fields.get('Priority', '-') }}</td>
+
       </tr>
 
       <!-- EXPAND ROW -->
       <tr id="row-{{ issue.key }}" class="hidden bg-gray-50">
-        <td colspan="4" class="p-4">
+        <td colspan="4">
 
           <div class="grid grid-cols-2 gap-2 text-sm">
             {% for field, value in issue.fields.items() %}
@@ -46,11 +46,11 @@
 
       {% endfor %}
     </tbody>
+
   </table>
 
 </div>
 
-<!-- SIMPLE TOGGLE SCRIPT -->
 <script>
 function toggleRow(key) {
   const row = document.getElementById("row-" + key);

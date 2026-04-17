@@ -19,7 +19,11 @@
     </select>
   </div>
 
-  <form id="searchForm" hx-post="/search" hx-target="#results" hx-swap="innerHTML">
+  <!-- SEARCH FORM -->
+  <form id="searchForm"
+        hx-post="/search"
+        hx-target="#results"
+        hx-swap="innerHTML">
 
     <select name="instance" class="border p-2 rounded mb-2 w-full">
       <option value="cloud">Jira Cloud</option>
@@ -27,11 +31,26 @@
     </select>
 
     <input name="query"
-           placeholder="Enter Issue Key or JQL"
-           class="border p-2 w-full rounded"/>
+          placeholder="Enter Issue Key or JQL"
+          class="border p-2 w-full rounded"/>
 
-    <button class="bg-blue-500 text-white px-4 py-2 mt-2 rounded">
+    <button type="submit"
+            class="bg-blue-500 text-white px-4 py-2 mt-2 rounded">
       Search
+    </button>
+
+  </form>
+
+  <!-- EXPORT FORM (SEPARATE — IMPORTANT) -->
+  <form action="/export" method="post" class="mt-2">
+
+    <!-- SAME FIELDS -->
+    <input type="hidden" name="instance" id="exportInstance">
+    <input type="hidden" name="query" id="exportQuery">
+
+    <button type="submit"
+            class="bg-green-500 text-white px-4 py-2 rounded">
+      Export to Excel
     </button>
 
   </form>
@@ -39,4 +58,15 @@
   <div id="results" class="mt-6"></div>
 
 </body>
+
+<script>
+document.getElementById("searchForm").addEventListener("submit", function() {
+  document.getElementById("exportInstance").value =
+    this.querySelector('[name="instance"]').value;
+
+  document.getElementById("exportQuery").value =
+    this.querySelector('[name="query"]').value;
+});
+</script>
+
 </html>
