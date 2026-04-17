@@ -1,0 +1,59 @@
+<div class="bg-white shadow rounded overflow-hidden">
+
+  <table class="min-w-full text-sm">
+    <thead class="bg-gray-200">
+      <tr>
+        <th class="p-2 text-left">Key</th>
+        <th class="p-2 text-left">Summary</th>
+        <th class="p-2 text-left">Status</th>
+        <th class="p-2 text-left">Priority</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for issue in issues %}
+      
+      <!-- MAIN ROW -->
+      <tr class="border-b cursor-pointer hover:bg-gray-100"
+          onclick="toggleRow('{{ issue.key }}')">
+        <td class="p-2 font-semibold text-blue-600">
+          {{ issue.key }}
+        </td>
+        <td class="p-2">
+          {{ issue.fields.get('Summary', '-') }}
+        </td>
+        <td class="p-2">
+          {{ issue.fields.get('Status', '-') }}
+        </td>
+        <td class="p-2">
+          {{ issue.fields.get('Priority', '-') }}
+        </td>
+      </tr>
+
+      <!-- EXPAND ROW -->
+      <tr id="row-{{ issue.key }}" class="hidden bg-gray-50">
+        <td colspan="4" class="p-4">
+
+          <div class="grid grid-cols-2 gap-2 text-sm">
+            {% for field, value in issue.fields.items() %}
+              <div class="font-semibold text-gray-600">{{ field }}</div>
+              <div class="text-gray-900">{{ value }}</div>
+            {% endfor %}
+          </div>
+
+        </td>
+      </tr>
+
+      {% endfor %}
+    </tbody>
+  </table>
+
+</div>
+
+<!-- SIMPLE TOGGLE SCRIPT -->
+<script>
+function toggleRow(key) {
+  const row = document.getElementById("row-" + key);
+  row.classList.toggle("hidden");
+}
+</script>

@@ -1,0 +1,27 @@
+{% for issue in issues %}
+<div class="bg-white shadow rounded p-4 mb-4">
+
+  <h2 class="font-bold text-lg mb-3 text-blue-600">
+    {{ issue.key }}
+  </h2>
+
+  {% for field, value in issue.fields.items() %}
+    <div class="grid grid-cols-2 gap-2 text-sm border-b py-1">
+      <div class="font-semibold text-gray-600">{{ field }}</div>
+      <div class="text-gray-900">{{ value }}</div>
+    </div>
+  {% endfor %}
+
+  {% if field == "comment" %}
+    <div class="col-span-2 whitespace-pre-line bg-gray-50 p-2 rounded">
+      {{ value }}
+    </div>
+  {% else %}
+    <div class="grid grid-cols-2 gap-2 text-sm border-b py-1">
+      <div class="font-semibold text-gray-600">{{ field }}</div>
+      <div class="text-gray-900">{{ value }}</div>
+    </div>
+  {% endif %}
+
+</div>
+{% endfor %}

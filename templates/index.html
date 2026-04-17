@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Jira Visualizer</title>
+
+  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 p-10">
+
+  <h1 class="text-2xl font-bold mb-4">Jira Visualizer</h1>
+
+  <div class="mb-4">
+    <label class="mr-2 font-semibold">View:</label>
+    <select name="view" form="searchForm" class="border p-2 rounded">
+      <option value="card">Card</option>
+      <option value="table">Table</option>
+    </select>
+  </div>
+
+  <form id="searchForm" hx-post="/search" hx-target="#results" hx-swap="innerHTML">
+
+    <select name="instance" class="border p-2 rounded mb-2 w-full">
+      <option value="cloud">Jira Cloud</option>
+      <option value="onprem">Jira On-Prem</option>
+    </select>
+
+    <input name="query"
+           placeholder="Enter Issue Key or JQL"
+           class="border p-2 w-full rounded"/>
+
+    <button class="bg-blue-500 text-white px-4 py-2 mt-2 rounded">
+      Search
+    </button>
+
+  </form>
+
+  <div id="results" class="mt-6"></div>
+
+</body>
+</html>
